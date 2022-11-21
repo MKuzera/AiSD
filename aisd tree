@@ -1,0 +1,282 @@
+#include <iostream>
+#define unikalne    1 // 1 dla bez powatrzania sie , 0 dla powtarzania sie
+#define czy_to_pierwsza_grupa 1 // tak , 0 nie
+using namespace std;
+/*
+typedef int typ_danych;
+
+bool warunek_w_prawo(typ_danych a, typ_danych b){
+    if(a <= b) {return 1;}
+    else return 0;
+}
+
+bool warunek_w_prawo_bez_rowna_sie(typ_danych a, typ_danych b){
+    if(a < b) {return 1;}
+    else return 0;
+}
+*/
+///////////////////////// Zad grupq 1. ///////////////////////////
+typedef string typ_danych;
+
+bool warunek_w_prawo(typ_danych a, typ_danych b){
+    if(a <= b) {return 1;}
+    else return 0;
+}
+
+bool warunek_w_prawo_bez_rowna_sie(typ_danych a, typ_danych b){
+    if(a < b) {return 1;}
+    else return 0;
+}
+///////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+////////////////////////////// Baza ////////////////////////////////////
+class node
+{
+public:
+    typ_danych key;
+    node* parent;
+    node* left;
+    node* right;
+
+
+
+    // do zadania dla grupy 1
+    int ilosc = 0;
+    int ilosc_wyszukan = 0 ;
+    int ilosc_zakupionych = 0;
+};
+class tree {
+public:
+    node *root;
+
+    tree() {
+        root = NULL;
+    }
+    void add(typ_danych a) { // dodaje node'a
+        if(unikalne){
+        if(!szukaj_wartosc(root,a) == NULL){
+
+            if(czy_to_pierwsza_grupa){
+                szukaj_wartosc(root,a)->ilosc++; ///////////grupa 1 zad 2
+            }
+            return;}}  // zdefiniowane wyzej, czy pozwolić na powtarzanie sie wartosci
+
+
+
+        node *dodaj_ten = new node;
+        node *poprzedni;
+
+        dodaj_ten->key = a;
+        dodaj_ten->left = NULL;
+        dodaj_ten->right = NULL;
+
+        poprzedni = NULL;
+
+        if (root == NULL) {
+            root = dodaj_ten;}
+        else {
+            node *pom;
+            pom = root;
+
+            while (pom != NULL) {
+                poprzedni = pom;
+                if (warunek_w_prawo(pom->key, a)) pom = pom->right;
+                else pom = pom->left;}
+
+            if (!warunek_w_prawo(poprzedni->key, a))
+                poprzedni->left = dodaj_ten;
+            else poprzedni->right = dodaj_ten;
+        }
+    }
+
+    void inorder(node* pierwszy){  //wyswietla za koleja
+        if(pierwszy!=NULL){
+            inorder(pierwszy->right);
+            cout<<" "<<pierwszy->key;
+            inorder(pierwszy->left);
+        }
+    }
+
+    void inorder_bez_wyswietl(node* pierwszy){  //wyswietla za koleja
+        if(pierwszy!=NULL){
+            inorder(pierwszy->right);
+            inorder(pierwszy->left);
+        }
+    }
+
+
+    void preorder(node* pierwszy){  // wyswietla odwrotnie
+        if(pierwszy!=NULL){
+            preorder(pierwszy->left);
+            cout<<" "<<pierwszy->key;
+            preorder(pierwszy->right);
+        }
+    }
+    node* remove(typ_danych wartosc, node* aktualny) // usuwa node'a
+    {
+        node* temp;
+        if(aktualny == NULL)
+            return NULL;
+        else if(warunek_w_prawo_bez_rowna_sie(wartosc, aktualny->key))
+            aktualny->left = remove(wartosc, aktualny->left);
+        else if(warunek_w_prawo_bez_rowna_sie(wartosc, aktualny->key))
+            aktualny->right = remove(wartosc, aktualny->right);
+        else if(aktualny->left && aktualny->right)
+        {
+            temp = szukaj_MIN_MAX(aktualny->right, true);
+            aktualny->key = temp->key;
+            aktualny->right = remove(aktualny->key, aktualny->right);
+        }
+        else
+        {
+            temp = aktualny;
+            if(aktualny->left == NULL)
+                aktualny = aktualny->right;
+            else if(aktualny->right == NULL)
+                aktualny = aktualny->left;
+
+            delete temp;
+        }
+        return aktualny;
+    }
+
+    void remove(typ_danych x) // skrocowa wersja
+    {
+        root = remove(x, root);
+    }
+
+    node* szukaj_MIN_MAX(node* aktualny, bool MIN_MAX ) // szuka min/maxa w drzewie
+    {
+        if(MIN_MAX==true){
+            if( aktualny ) while( aktualny->left ) aktualny = aktualny->left;
+            return aktualny;
+        }
+        else{
+            if( aktualny ) while( aktualny->right ) aktualny = aktualny->right;
+            return aktualny;
+        }
+    }
+
+
+    node* szukaj_wartosc(node* aktualny, typ_danych key){
+        while(aktualny && aktualny->key != key){
+            aktualny = (key < aktualny->key ) ? aktualny->left : aktualny->right;
+        }
+        return aktualny;
+    }
+
+
+    ////////// ZADANIE GRUPA 2  ////////////////////////////////////////////////////////////////////////////
+
+
+    ///////// zad1. - wyszukiawrka slow w slowniku - jest funkcja wyzej.
+
+    ///////// zad2. - zaawansowane wyszukiwanie
+    node* zaawansowane_wyszukiwanie(node* aktualny, typ_danych key)
+    {
+        while(aktualny && aktualny->key != key){
+            if(key.length() <= aktualny->key.length()) {
+                string our_key = "";
+                for(int i = 0 ; i < key.length() ; i++){
+                    our_key += aktualny->key[i];
+                }
+
+                if(key == our_key){cout<<"znaleziono! :  "<<aktualny->key << " po wyszukaniu "<< our_key <<endl; return aktualny; }
+            }
+            aktualny = (key < aktualny->key ) ? aktualny->left : aktualny->right;
+        }
+        return aktualny;
+    }
+    //////// zad3. dodawanie nowych słow bez powtarzania. Jest u gory define "unikalne"
+
+    //////// zad4. Edycja slowa
+
+    void* edytuj_wartosc(node* aktualny, typ_danych co_edytowac, typ_danych na_co_edytowac) {
+        while (aktualny && aktualny->key != co_edytowac) {
+            aktualny = (co_edytowac < aktualny->key) ? aktualny->left : aktualny->right;
+        }
+
+        if (aktualny) { aktualny->key = na_co_edytowac; }
+
+    }
+
+    ////////////////////ZADANIE GRUPA 1 //////////////////////////////////////////////
+    node* szukaj_wartosc_i_dodaj_o_1(node* aktualny, typ_danych key){
+        while(aktualny && aktualny->key != key){
+            aktualny = (key < aktualny->key ) ? aktualny->left : aktualny->right;
+        }
+        if(aktualny){aktualny->ilosc_wyszukan++; } // dziala sprawdzone w debugerze
+        return aktualny;
+    }
+
+    void zakup_produkt(node* aktualny,typ_danych a ){
+
+       if(!szukaj_wartosc(aktualny,a)) {return;} // powroc gdy wgl nie ma produktu
+       if(szukaj_wartosc(aktualny,a)->ilosc<1) {return;}
+
+        szukaj_wartosc(aktualny,a)->ilosc--;
+        szukaj_wartosc(aktualny,a)->ilosc_zakupionych++;
+       return;
+    }
+
+
+
+    void usun_gdy_wyswietlen_mniej_niz(node* aktualny , int liczba_wys){
+
+
+
+            if(aktualny!=NULL){
+                if(aktualny->ilosc_wyszukan<liczba_wys){remove(aktualny->key, root); usun_gdy_wyswietlen_mniej_niz(root,liczba_wys); }
+                usun_gdy_wyswietlen_mniej_niz(aktualny->right,liczba_wys);
+                usun_gdy_wyswietlen_mniej_niz(aktualny->left,liczba_wys);
+
+            }
+            return;
+
+        }
+
+
+
+
+};
+
+//////////////////////////////////// main //////////////////////////////////
+int main() {
+
+    tree drzewo;
+    drzewo.add("loll");
+    drzewo.add("seima013221");
+    drzewo.add("non");
+    drzewo.add("1102");
+    drzewo.add("104441");
+
+    drzewo.zaawansowane_wyszukiwanie(drzewo.root,"1601");
+    drzewo.edytuj_wartosc(drzewo.root , "loll", "1000");
+    cout << endl;
+
+    drzewo.inorder(drzewo.root);
+    cout << endl;
+    drzewo.preorder(drzewo.root);
+    cout << endl;
+    cout << endl;
+    cout << endl;
+    drzewo.szukaj_wartosc_i_dodaj_o_1(drzewo.root,"1000");
+    drzewo.szukaj_wartosc_i_dodaj_o_1(drzewo.root,"1000");
+    drzewo.szukaj_wartosc_i_dodaj_o_1(drzewo.root,"1000");
+
+
+    drzewo.usun_gdy_wyswietlen_mniej_niz(drzewo.root , 1);
+    cout << endl;
+    drzewo.inorder(drzewo.root);
+    cout << drzewo.szukaj_wartosc(drzewo.root , "seima013221")->ilosc_wyszukan;
+    return 0;
+}
